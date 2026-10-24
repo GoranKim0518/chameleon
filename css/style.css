@@ -2154,7 +2154,7 @@ button {
     }
 }
 
-@media (max-height: 620px) and(max-width: 1250px) {
+  @media (max-height: 620px) and (max-width: 1250px) {
     .workspace {
         grid-template-rows: minmax(170px, 40dvh) 47px minmax(0, 1fr)
     }

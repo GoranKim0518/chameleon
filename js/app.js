@@ -672,6 +672,8 @@ const BLENDS = [['Normal', 0], ['Dissolve', 15], ['Multiply', 1], ['Screen', 2],
 const CATEGORIES = ['ALL', 'TONAL', 'PRINT', 'BLUR', 'EDGES', 'GLITCH', 'DISTORT', 'COLOR', 'TEXTURE', 'ANALOG', 'LIGHT', 'BLENDING', 'EXPERIMENTAL'];
 const byId = new Map(EFFECTS.map(e => [e.id, e]));
 const $ = id => document.getElementById(id);
+const trackAnalytics = (event, params = {}) => window.CHAMELEON_ANALYTICS?.track?.(event, params);
+const reportAnalyticsError = (feature, error) => window.CHAMELEON_ANALYTICS?.error?.(feature, error);
 const state = {
     layers: [],
     selection: null,
@@ -925,6 +927,7 @@ function addEffect(id) {
     }
     recordHistory();
     state.layers.push(newLayer(id));
+    trackAnalytics('effect_added', { effect_id: id, effect_count: state.layers.length });
     state.selection = state.layers.at(-1).key;
     state.selectedImageLayer = null;
     commitStack();
@@ -1320,6 +1323,7 @@ function scheduleRender() {
             engine.render(state.layers, state.compare);
         } catch (e) {
             console.error(e);
+            reportAnalyticsError('render', e);
             notify('렌더링 오류: ' + e.message);
         }
     });
@@ -1802,6 +1806,7 @@ function rebuildComposite(showToast) {
             notify('이미지 레이어가 업데이트되었습니다.');
     } catch (e) {
         console.error(e);
+        reportAnalyticsError('composite', e);
         notify('이미지 합성 오류: ' + e.message);
     }
 }
@@ -1856,8 +1861,10 @@ async function replaceBaseImage(file) {
         state.selection = null;
         updateImageLayers();
         rebuildComposite();
+        trackAnalytics('image_uploaded', { upload_type: 'base', image_count: state.imageLayers.length });
         notify('기본 이미지가 교체되었습니다.');
     } catch (e) {
+        reportAnalyticsError('replace_base_image', e);
         notify(e.message);
     }
 }
@@ -1874,8 +1881,10 @@ async function appendImageLayers(files) {
         state.selection = null;
         updateImageLayers();
         rebuildComposite();
+        trackAnalytics('image_uploaded', { upload_type: 'layer', image_count: state.imageLayers.length });
         notify(images.length === 1 ? '새 이미지 레이어가 추가되었습니다.' : `${images.length}개의 이미지 레이어가 추가되었습니다.`);
     } catch (e) {
+        reportAnalyticsError('append_image_layer', e);
         notify(e.message);
     }
 }
@@ -1931,6 +1940,7 @@ async function shareResult() {
     } catch (err) {
         if (err.name !== 'AbortError') {
             console.error(err);
+            reportAnalyticsError('share_result', err);
             notify('공유를 완료하지 못했습니다. PNG 다운로드를 이용해주세요.');
         }
     }
@@ -1957,15 +1967,18 @@ async function exportPNG() {
             openExportDialog(blob, engine.width, engine.height);
         else
             downloadBlob(blob, getExportName('png'));
+        trackAnalytics('export_completed', { effect_count: state.layers.length, output_width: engine.width, output_height: engine.height });
         notify(`PNG 준비 완료 · ${engine.width} × ${engine.height}` + (native > target ? ' (기기 메모리 보호를 위해 크기 조절)' : ''));
     } catch (e) {
         console.error(e);
+        reportAnalyticsError('export_png', e);
         notify('PNG 내보내기 실패: ' + e.message);
     } finally {
         try {
             rebuildComposite();
         } catch (e) {
             console.error(e);
+            reportAnalyticsError('restore_composite_after_export', e);
         }
         state.processing = false;
         btn.disabled = false;
@@ -2275,6 +2288,7 @@ async function initialize() {
         }
     } catch (err) {
         console.error(err);
+        reportAnalyticsError('initialize_webgl', err);
         $('engineText').textContent = 'ENGINE ERROR';
         $('engineText').style.color = '#ff7777';
         $('artShell').innerHTML = '<div style="padding:40px;max-width:450px;line-height:1.7;color:#ffb5b5">이미지 처리 엔진을 시작할 수 없습니다.<br/>' + escapeHtml(err.message) + '<br/>최신 Chrome, Edge, Safari에서 다시 열어주세요.</div>';
