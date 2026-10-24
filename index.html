@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=9ba71cf9-83cd-4e45-a40b-90dd1aef51d2
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="CHAMELEON — black and white experimental image effect studio running in the browser" />
+  <title>CHAMELEON — Experimental Effect Studio</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <div class="brand" aria-label="CHAMELEON">
+        <span class="brand-symbol">◐</span>
+        <div class="brand-text">CHAMELEON<i>.</i></div>
+        <span class="build-label">IMAGE EFFECT ENGINE</span>
+      </div>
+      <div class="top-right">
+        <div class="history-actions" role="group" aria-label="편집 기록">
+          <button type="button" id="undoBtn" class="history-button" title="실행 취소 · Ctrl+Z / ⌘Z" aria-label="실행 취소" disabled>↶</button>
+          <button type="button" id="redoBtn" class="history-button" title="다시 실행 · Ctrl+Shift+Z / ⌘⇧Z" aria-label="다시 실행" disabled>↷</button>
+        </div>
+        <span class="engine-status"><span class="status-pulse"></span><span id="engineText">ENGINE READY</span></span>
+        <button class="button button-subtle top-help" id="helpBtn" title="단축키 및 사용법"><span>?</span> 사용법</button>
+        <button class="button button-accent" id="exportBtn"><span class="icon">↓</span> PNG 내보내기</button>
+      </div>
+    </header>
+
+    <div class="workspace" id="workspace" data-active-panel="filters">
+      <aside class="library panel" aria-label="효과 라이브러리">
+        <div class="library-head">
+          <div class="eyebrow">01 / EXPLORE</div>
+          <div class="section-title-row"><h2>EFFECT LIBRARY</h2><span id="effectCount" class="count">00</span></div>
+          <div class="search-wrap"><span class="search-icon">⌕</span><input id="search" aria-label="효과 검색" type="search" placeholder="효과 검색...  /" autocomplete="off"/><span class="search-shortcut">/</span></div>
+        </div>
+        <div class="category-scroll" id="categories" role="tablist" aria-label="효과 카테고리"></div>
+        <div class="effect-grid-scroll" id="effectsScroll"><div id="effectGrid" class="effect-grid"></div></div>
+        <div class="library-footer"><span>+ 클릭하여 스택에 추가</span><span>GPU / WEBGL 2.0</span></div>
+      </aside>
+
+      <main class="stage">
+        <div class="stage-toolbar">
+          <div class="stage-label"><span class="live-indicator"></span> LIVE CANVAS <span class="stage-divider">/</span> <span id="imageName">CHAMELEON_SAMPLE.JPG</span></div>
+          <div class="stage-actions">
+            <button class="mini-button" id="loadBtn" title="새 이미지 불러오기">↑ <span>이미지 업로드</span></button>
+            <button class="mini-button" id="layerUploadBtn" title="새 이미지 레이어 추가">⊕ <span>레이어 추가</span></button>
+            <button class="mini-button" id="compareBtn" title="누르고 있는 동안 원본 보기 (Space)">◫ <span>원본 비교</span></button>
+          </div>
+        </div>
+        <div class="stage-main" id="dropZone">
+          <div class="canvas-area" id="canvasArea">
+            <div class="art-shell" id="artShell">
+              <canvas id="glCanvas" aria-label="실시간 편집 이미지"></canvas>
+              <div class="canvas-overlay" id="canvasOverlay" aria-hidden="true">
+                <div class="snap-guide vertical" id="guideX" hidden></div>
+                <div class="snap-guide horizontal" id="guideY" hidden></div>
+                <div class="layer-frame" id="layerFrame" hidden>
+                  <div class="layer-frame-label" id="layerFrameLabel">LAYER</div>
+                  <div class="layer-frame-outline"></div>
+                  <div class="rotate-stem" aria-hidden="true"></div>
+                  <button class="layer-handle rotate-handle" id="rotateHandle" type="button" aria-label="선택한 이미지 레이어 회전"></button>
+                  <button class="layer-handle resize-handle tl" data-corner="tl" type="button" aria-label="선택한 이미지 레이어 크기 조절"></button>
+                  <button class="layer-handle resize-handle tr" data-corner="tr" type="button" aria-label="선택한 이미지 레이어 크기 조절"></button>
+                  <button class="layer-handle resize-handle bl" data-corner="bl" type="button" aria-label="선택한 이미지 레이어 크기 조절"></button>
+                  <button class="layer-handle resize-handle br" id="resizeHandle" data-corner="br" type="button" aria-label="선택한 이미지 레이어 크기 조절"></button>
+                </div>
+              </div>
+              <div class="canvas-corner tl"></div><div class="canvas-corner tr"></div><div class="canvas-corner bl"></div><div class="canvas-corner br"></div>
+            </div>
+            <div class="drop-overlay" id="dropOverlay"><span class="upload-circle">↑</span><strong>DROP IMAGE HERE</strong><span>JPG / PNG / WEBP</span></div>
+          </div>
+          <div class="stage-side-note">ADAPTIVE IMAGE EFFECT SYSTEM <span>© CHAMELEON</span></div>
+        </div>
+        <div class="stage-bottom">
+          <div class="document-info"><span class="green-dot"></span><span id="resolution">1200 × 1500 PX</span><span class="separator">·</span><span id="layerInfo">0 ACTIVE EFFECTS</span></div>
+          <div class="zoom-controls"><button id="fitBtn" class="mini-button active">FIT</button><button id="actualBtn" class="mini-button">100%</button><span id="zoomLabel">FIT VIEW</span></div>
+        </div>
+      </main>
+
+      <nav class="mobile-nav" id="mobileNav" role="tablist" aria-label="편집 화면 전환">
+        <button type="button" class="mobile-tab active" role="tab" aria-selected="true" data-panel="filters"><span>FILTERS</span><span class="mobile-tab-count">81</span></button>
+        <button type="button" class="mobile-tab" role="tab" aria-selected="false" data-panel="stack"><span>STACK</span><span class="mobile-tab-count" id="mobileStackCount">0</span></button>
+        <button type="button" class="mobile-tab" role="tab" aria-selected="false" data-panel="adjust"><span>ADJUST</span><span class="mobile-tab-count">↗</span></button>
+      </nav>
+
+      <aside class="inspector panel" aria-label="이미지 레이어, 효과 스택과 파라미터">
+        <section class="image-section">
+          <div class="section-heading"><div><div class="eyebrow">02 / LAYERS</div><h2>IMAGE LAYERS <span id="imageLayerCount" class="count">00</span></h2></div><div class="heading-actions"><button id="addImageLayerBtn" class="text-btn" title="새 이미지 레이어 추가">레이어 추가</button></div></div>
+          <p class="muted-note">여러 이미지를 중첩해 하나의 베이스 캔버스로 합성합니다. 레이어를 선택하면 위치와 크기를 조절할 수 있어요.</p>
+          <div id="imageLayerList" class="stack-list image-layer-list"></div>
+        </section>
+        <section class="stack-section">
+          <div class="section-heading"><div><div class="eyebrow">03 / COMPOSE</div><h2>EFFECT STACK <span id="stackCount" class="count">00</span></h2></div><div class="heading-actions"><button id="savePresetBtn" class="text-btn" title="현재 스택을 JSON 프리셋으로 저장">저장 ↓</button><span style="color:#444">/</span><button id="loadPresetBtn" class="text-btn" title="프리셋 불러오기">불러오기 ↑</button><span style="color:#444">/</span><button id="clearBtn" class="text-btn" title="모든 효과 삭제">모두 지우기</button></div></div>
+          <p class="muted-note">위에서 아래 순서대로 적용됩니다. 효과를 선택하면 세부 설정을 변경할 수 있어요.</p>
+          <div id="stackList" class="stack-list"></div>
+          <button class="add-layer" id="addEffectBtn"><span>＋</span> 라이브러리에서 효과 추가</button>
+        </section>
+        <section class="settings-section">
+          <div class="section-heading settings-heading"><div><div class="eyebrow">04 / FINE TUNE</div><h2>PARAMETERS</h2></div><button id="resetEffectBtn" class="text-btn" hidden>초기화 ↺</button></div>
+          <div id="settingsContent" class="settings-content"></div>
+        </section>
+        <div class="inspector-footer"><span>NON-DESTRUCTIVE</span><span>CHAMELEON</span></div>
+      </aside>
+    </div>
+  </div>
+
+  <input type="file" id="uploadInput" hidden accept="image/*,.heic,.heif" />
+  <input type="file" id="presetInput" hidden accept="application/json,.json" />
+  <input type="file" id="layerInput" hidden multiple accept="image/*,.heic,.heif" />
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <dialog id="exportDialog" class="export-dialog" aria-labelledby="exportDialogTitle">
+    <div class="dialog-top"><h2 id="exportDialogTitle">IMAGE READY</h2><button id="closeExport" class="close-dialog" aria-label="닫기">×</button></div>
+    <img id="exportPreview" class="export-preview" alt="내보낼 이미지 미리보기" />
+    <p id="exportDimensions" class="export-dimensions">PNG</p>
+    <p class="export-hint">아이폰·아이패드에서는 공유 메뉴에서 사진 저장을 선택할 수 있습니다. 공유 메뉴가 지원되지 않으면 PNG를 파일로 다운로드하세요.</p>
+    <button id="shareExport" class="button button-accent export-action">↗ 사진 공유 / 저장</button>
+    <button id="downloadExport" class="button button-subtle export-action">↓ PNG 파일 다운로드</button>
+    <button id="openExport" class="button button-subtle export-action">▣ 이미지 새 탭에서 열기</button>
+  </dialog>
+  <dialog id="helpDialog" class="help-dialog">
+    <div class="dialog-top"><h2>HOW TO USE</h2><button id="closeHelp" class="close-dialog" aria-label="닫기">×</button></div>
+    <p>이미지를 올리고 왼쪽에서 효과를 클릭하면 오른쪽 스택에 추가됩니다. 이미지 레이어는 캔버스에서 직접 드래그해 이동할 수 있고, 코너 핸들로 크기를 조절하며, 상단 회전 핸들 또는 모바일 두 손가락 제스처로 회전/확대할 수 있습니다. 화면 밖으로 나간 부분은 잘려 보입니다.</p>
+    <div class="shortcut-row"><span>실행 취소 / 다시 실행</span><kbd>Ctrl/⌘ + Z · Ctrl/⌘ + Shift + Z</kbd></div>
+    <div class="shortcut-row"><span>원본 비교</span><kbd>모바일: 탭 / PC: 길게 누르기</kbd></div>
+    <div class="shortcut-row"><span>효과 검색</span><kbd>/</kbd></div>
+    <div class="shortcut-row"><span>기본 이미지 교체 / 레이어 추가</span><kbd>상단 버튼</kbd></div>
+    <div class="shortcut-row"><span>효과의 순서 변경</span><kbd>↑ / ↓</kbd></div>
+    <div class="shortcut-row"><span>원본 해상도에 가깝게 저장</span><kbd>PNG 저장</kbd></div>
+    <p class="help-note">여러 이미지를 레이어로 쌓은 뒤, 그 위에 필터를 비파괴적으로 적용할 수 있습니다. 모든 이미지는 브라우저 안에서만 처리되며 서버로 전송되지 않습니다. 네온, 텍스처, 컬러 변환, 아날로그 재질, 실험 필터를 폭넓게 쌓아볼 수 있습니다.</p>
+    <button id="dialogOk" class="button button-accent" style="width:100%">START WITH CHAMELEON ↗</button>
+  </dialog>
+  <script src="./engine.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
+<script async src="/.netlify/scripts/hud?variant=public" data-nf-variant="public" data-netlify-site-id="9ba71cf9-83cd-4e45-a40b-90dd1aef51d2" data-app-host="app.netlify.com" data-account-tier="free"></script>
