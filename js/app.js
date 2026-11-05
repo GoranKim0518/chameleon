@@ -1,6 +1,6 @@
 'use strict';
-// Effect a/b values directly control shader parameters; opacity and blending are post-effect.
-const p = (label, min, max, def, step=1) => ({
+// Effect parameters directly control the shader; opacity and blending are post-effect.
+const createParameterDefinition = (label, min, max, def, step=1) => ({
     label,
     min,
     max,
@@ -13,64 +13,64 @@ const EFFECTS = [
     name: 'Threshold',
     category: 'TONAL',
     desc: '밝기를 기준으로 흑백을 강하게 분리합니다.',
-    a: p('경계값', 0, 1, .48, .01),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('경계값', 0, 1, .48, .01),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 1,
     name: 'Posterize',
     category: 'TONAL',
     desc: '채널당 색상 단계를 줄여 평면화합니다.',
-    a: p('색상 단계', 2, 16, 4),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('색상 단계', 2, 16, 4),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 12,
     name: 'Solarize',
     category: 'TONAL',
     desc: '선택한 명도 이상에서 색상을 반전합니다.',
-    a: p('반전 경계', 0, 1, .45, .01),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('반전 경계', 0, 1, .45, .01),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 13,
     name: 'Invert',
     category: 'TONAL',
     desc: 'RGB 채널을 반전합니다.',
-    a: p('반전 기준', 0, 1, .5, .01),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('반전 기준', 0, 1, .5, .01),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 30,
     name: 'Xerox / Photocopy',
     category: 'TONAL',
     desc: '강한 흑백 대비와 거친 복사 질감을 만듭니다.',
-    a: p('복사 농도', 0, 1, .51, .01),
-    b: p('노이즈 크기', 1, 12, 2)
+    primaryParam: createParameterDefinition('복사 농도', 0, 1, .51, .01),
+    secondaryParam: createParameterDefinition('노이즈 크기', 1, 12, 2)
 },
 {
     id: 36,
     name: 'Cutout',
     category: 'TONAL',
     desc: '톤과 색을 분절하여 실크스크린처럼 단순화합니다.',
-    a: p('단계 수', 2, 12, 4),
-    b: p('컬러 비율', 0, 1, .74, .01)
+    primaryParam: createParameterDefinition('단계 수', 2, 12, 4),
+    secondaryParam: createParameterDefinition('컬러 비율', 0, 1, .74, .01)
 },
 {
     id: 37,
     name: 'Liquid Chrome',
     category: 'TONAL',
     desc: '밝기값을 기반으로 금속성 반사 밴드를 만듭니다.',
-    a: p('반사 띠', 1, 8, 3, .1),
-    b: p('크롬 비율', 0, 1, .94, .01)
+    primaryParam: createParameterDefinition('반사 띠', 1, 8, 3, .1),
+    secondaryParam: createParameterDefinition('크롬 비율', 0, 1, .94, .01)
 },
 {
     id: 46,
     name: 'Blacklight',
     category: 'TONAL',
     desc: '이미지의 반전값을 보랏빛으로 강조합니다.',
-    a: p('감마', .25, 3, 1.1, .05),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('감마', .25, 3, 1.1, .05),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 
 {
@@ -78,64 +78,64 @@ const EFFECTS = [
     name: 'Halftone',
     category: 'PRINT',
     desc: '셀 단위 명도에 따라 원형 망점을 형성합니다.',
-    a: p('망점 크기', 3, 45, 12),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('망점 크기', 3, 45, 12),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 3,
     name: 'Mono Dither',
     category: 'PRINT',
     desc: '4×4 Bayer 매트릭스로 흑백 디더링합니다.',
-    a: p('디더 강도', .1, 2, 1, .05),
-    b: p('픽셀 크기', 1, 12, 2)
+    primaryParam: createParameterDefinition('디더 강도', .1, 2, 1, .05),
+    secondaryParam: createParameterDefinition('픽셀 크기', 1, 12, 2)
 },
 {
     id: 4,
     name: 'Color Dither',
     category: 'PRINT',
     desc: '채널별 색상 수를 줄이고 패턴 디더링합니다.',
-    a: p('디더 강도', .1, 2, .9, .05),
-    b: p('픽셀 크기', 1, 12, 2)
+    primaryParam: createParameterDefinition('디더 강도', .1, 2, .9, .05),
+    secondaryParam: createParameterDefinition('픽셀 크기', 1, 12, 2)
 },
 {
     id: 5,
     name: 'Film Grain',
     category: 'PRINT',
     desc: '이미지 위에 픽셀 단위 랜덤 입자를 추가합니다.',
-    a: p('입자 강도', 0, 1, .42, .01),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('입자 강도', 0, 1, .42, .01),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 34,
     name: 'Dot Matrix',
     category: 'PRINT',
     desc: '명도에 따라 직경이 변하는 점 행렬입니다.',
-    a: p('셀 크기', 4, 45, 12),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('셀 크기', 4, 45, 12),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 35,
     name: 'Crosshatch',
     category: 'PRINT',
     desc: '어두운 영역에 교차 선 묘사를 생성합니다.',
-    a: p('선 간격', 4, 30, 11),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('선 간격', 4, 30, 11),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 44,
     name: 'Print Misregister',
     category: 'PRINT',
     desc: '인쇄 판이 어긋난 듯 색 분판을 이동합니다.',
-    a: p('판 이동', 1, 45, 11),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('판 이동', 1, 45, 11),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 80,
     name: 'Newsprint',
     category: 'PRINT',
     desc: '저해상도 신문 인쇄처럼 도트와 탁한 잉크감을 만듭니다.',
-    a: p('도트 크기', 0, 1, .36, .01),
-    b: p('잉크 번짐', 0, 1, .44, .01)
+    primaryParam: createParameterDefinition('도트 크기', 0, 1, .36, .01),
+    secondaryParam: createParameterDefinition('잉크 번짐', 0, 1, .44, .01)
 },
 
 {
@@ -143,40 +143,40 @@ const EFFECTS = [
     name: 'Gaussian Blur',
     category: 'BLUR',
     desc: '3×3 가우시안 커널로 주변 색상을 혼합합니다.',
-    a: p('반경', 1, 35, 9),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('반경', 1, 35, 9),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 7,
     name: 'Motion Blur',
     category: 'BLUR',
     desc: '지정한 방향으로 샘플을 누적합니다.',
-    a: p('길이', 1, 100, 38),
-    b: p('각도', 0, 360, 0)
+    primaryParam: createParameterDefinition('길이', 1, 100, 38),
+    secondaryParam: createParameterDefinition('각도', 0, 360, 0)
 },
 {
     id: 8,
     name: 'Radial Blur',
     category: 'BLUR',
     desc: '화면 중앙을 향해 줌 블러를 만듭니다.',
-    a: p('중심 집중도', .01, .5, .18, .01),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('중심 집중도', .01, .5, .18, .01),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 9,
     name: 'Sharpen',
     category: 'BLUR',
     desc: '주변 픽셀과의 차이를 이용해 윤곽을 강조합니다.',
-    a: p('샘플 거리', 1, 12, 2),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('샘플 거리', 1, 12, 2),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 32,
     name: 'Bloom / Glow',
     category: 'BLUR',
     desc: '밝은 영역을 주변으로 확산시킵니다.',
-    a: p('발광 반경', 2, 70, 23),
-    b: p('빛 강도', 0, 3, 1.7, .05)
+    primaryParam: createParameterDefinition('발광 반경', 2, 70, 23),
+    secondaryParam: createParameterDefinition('빛 강도', 0, 3, 1.7, .05)
 },
 
 {
@@ -184,56 +184,56 @@ const EFFECTS = [
     name: 'Find Edges',
     category: 'EDGES',
     desc: 'Sobel 연산자로 밝기 경계를 추출합니다.',
-    a: p('에지 두께', 1, 10, 2),
-    b: p('에지 대비', .5, 8, 3, .1)
+    primaryParam: createParameterDefinition('에지 두께', 1, 10, 2),
+    secondaryParam: createParameterDefinition('에지 대비', .5, 8, 3, .1)
 },
 {
     id: 11,
     name: 'Emboss',
     category: 'EDGES',
     desc: '대각 밝기 차이를 입체적인 음영으로 변환합니다.',
-    a: p('엠보싱 거리', 1, 15, 3),
-    b: p('깊이', .2, 5, 2, .1)
+    primaryParam: createParameterDefinition('엠보싱 거리', 1, 15, 3),
+    secondaryParam: createParameterDefinition('깊이', .2, 5, 2, .1)
 },
 {
     id: 31,
     name: 'Ink Outline',
     category: 'EDGES',
     desc: '명도와 경계선을 조합해 잉크 그림을 만듭니다.',
-    a: p('선 굵기', 1, 12, 2),
-    b: p('선 강도', 1, 9, 4, .1)
+    primaryParam: createParameterDefinition('선 굵기', 1, 12, 2),
+    secondaryParam: createParameterDefinition('선 강도', 1, 9, 4, .1)
 },
 {
     id: 45,
     name: 'Neon Contour',
     category: 'EDGES',
     desc: '윤곽을 추출해 청록·자홍빛으로 표현합니다.',
-    a: p('검출 두께', 1, 12, 2),
-    b: p('발광량', 0, 1, .9, .01)
+    primaryParam: createParameterDefinition('검출 두께', 1, 12, 2),
+    secondaryParam: createParameterDefinition('발광량', 0, 1, .9, .01)
 },
 {
     id: 74,
     name: 'Engraving',
     category: 'EDGES',
     desc: '금속 판화나 지폐 같은 선각 질감을 생성합니다.',
-    a: p('선 밀도', 0, 1, .42, .01),
-    b: p('곡률', 0, 1, .58, .01)
+    primaryParam: createParameterDefinition('선 밀도', 0, 1, .42, .01),
+    secondaryParam: createParameterDefinition('곡률', 0, 1, .58, .01)
 },
 {
     id: 78,
     name: 'Scratchboard',
     category: 'EDGES',
     desc: '검은 바탕을 긁어낸 듯한 흰 선 이미지를 만듭니다.',
-    a: p('스크래치 양', 0, 1, .48, .01),
-    b: p('거칠기', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('스크래치 양', 0, 1, .48, .01),
+    secondaryParam: createParameterDefinition('거칠기', 0, 1, .5, .01)
 },
 {
     id: 79,
     name: 'Woodcut',
     category: 'EDGES',
     desc: '목판화처럼 굵은 깎임과 높은 대비를 만듭니다.',
-    a: p('절삭 강도', 0, 1, .44, .01),
-    b: p('나뭇결 양', 0, 1, .46, .01)
+    primaryParam: createParameterDefinition('절삭 강도', 0, 1, .44, .01),
+    secondaryParam: createParameterDefinition('나뭇결 양', 0, 1, .46, .01)
 },
 
 {
@@ -241,64 +241,64 @@ const EFFECTS = [
     name: 'RGB Split',
     category: 'GLITCH',
     desc: 'R/B 채널을 좌우로 분리합니다.',
-    a: p('분리 거리', 0, 100, 24),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('분리 거리', 0, 100, 24),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 15,
     name: 'Channel Offset',
     category: 'GLITCH',
     desc: 'RGB 채널을 각도에 따라 어긋나게 합니다.',
-    a: p('오프셋', 0, 140, 37),
-    b: p('각도', 0, 360, 45)
+    primaryParam: createParameterDefinition('오프셋', 0, 140, 37),
+    secondaryParam: createParameterDefinition('각도', 0, 360, 45)
 },
 {
     id: 23,
     name: 'Scanlines',
     category: 'GLITCH',
     desc: '수평 주사선으로 아날로그 모니터 질감을 냅니다.',
-    a: p('라인 간격', 2, 18, 4),
-    b: p('명암 비율', .1, .95, .57, .01)
+    primaryParam: createParameterDefinition('라인 간격', 2, 18, 4),
+    secondaryParam: createParameterDefinition('명암 비율', .1, .95, .57, .01)
 },
 {
     id: 24,
     name: 'CRT Screen',
     category: 'GLITCH',
     desc: '브라운관 곡률·색수차·주사선·비네팅을 결합합니다.',
-    a: p('화면 곡률', 0, 2, .8, .05),
-    b: p('주사선 간격', 2, 15, 5)
+    primaryParam: createParameterDefinition('화면 곡률', 0, 2, .8, .05),
+    secondaryParam: createParameterDefinition('주사선 간격', 2, 15, 5)
 },
 {
     id: 25,
     name: 'VHS Tape',
     category: 'GLITCH',
     desc: '행 단위 수평 밀림, RGB 번짐, 신호 노이즈를 만듭니다.',
-    a: p('왜곡 크기', 0, 120, 48),
-    b: p('라인 크기', 1, 40, 9)
+    primaryParam: createParameterDefinition('왜곡 크기', 0, 120, 48),
+    secondaryParam: createParameterDefinition('라인 크기', 1, 40, 9)
 },
 {
     id: 26,
     name: 'Block Glitch',
     category: 'GLITCH',
     desc: '랜덤 블록마다 픽셀을 옆으로 이동합니다.',
-    a: p('이동 거리', 0, 250, 92),
-    b: p('블록 크기', 3, 90, 34)
+    primaryParam: createParameterDefinition('이동 거리', 0, 250, 92),
+    secondaryParam: createParameterDefinition('블록 크기', 3, 90, 34)
 },
 {
     id: 27,
     name: 'Pixel Smear',
     category: 'GLITCH',
     desc: '밝기 기반으로 수평 픽셀을 끌어 늘입니다.',
-    a: p('잔상 길이', 1, 180, 80),
-    b: p('혼합 강도', 0, 1, .86, .01)
+    primaryParam: createParameterDefinition('잔상 길이', 1, 180, 80),
+    secondaryParam: createParameterDefinition('혼합 강도', 0, 1, .86, .01)
 },
 {
     id: 29,
     name: 'Chromatic Warp',
     category: 'GLITCH',
     desc: '화면 가장자리 쪽에서 RGB 채널을 방사형으로 분리합니다.',
-    a: p('색수차 강도', 0, 140, 55),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('색수차 강도', 0, 140, 55),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 
 {
@@ -306,88 +306,88 @@ const EFFECTS = [
     name: 'Wave',
     category: 'DISTORT',
     desc: '정현파를 따라 픽셀을 수평 변위합니다.',
-    a: p('진폭', 0, 70, 24),
-    b: p('주파수', .5, 18, 5, .5)
+    primaryParam: createParameterDefinition('진폭', 0, 70, 24),
+    secondaryParam: createParameterDefinition('주파수', .5, 18, 5, .5)
 },
 {
     id: 17,
     name: 'Ripple',
     category: 'DISTORT',
     desc: '중심에서 퍼지는 동심원 물결 왜곡입니다.',
-    a: p('진폭', 0, 80, 22),
-    b: p('파장 밀도', .2, 5, 1.5, .1)
+    primaryParam: createParameterDefinition('진폭', 0, 80, 22),
+    secondaryParam: createParameterDefinition('파장 밀도', .2, 5, 1.5, .1)
 },
 {
     id: 18,
     name: 'Twirl',
     category: 'DISTORT',
     desc: '중심을 기준으로 이미지 좌표를 회전시킵니다.',
-    a: p('회전 각도', -720, 720, 200),
-    b: p('범위', .1, 1, .5, .01)
+    primaryParam: createParameterDefinition('회전 각도', -720, 720, 200),
+    secondaryParam: createParameterDefinition('범위', .1, 1, .5, .01)
 },
 {
     id: 19,
     name: 'Bulge / Pinch',
     category: 'DISTORT',
     desc: '중심 주변의 좌표를 확대하거나 수축합니다.',
-    a: p('변형량', -1.5, 2, -.7, .05),
-    b: p('반경', .1, 1, .6, .01)
+    primaryParam: createParameterDefinition('변형량', -1.5, 2, -.7, .05),
+    secondaryParam: createParameterDefinition('반경', .1, 1, .6, .01)
 },
 {
     id: 20,
     name: 'Kaleidoscope',
     category: 'DISTORT',
     desc: '극좌표를 대칭 반복해 만화경 패턴을 형성합니다.',
-    a: p('대칭 분할', 2, 18, 8),
-    b: p('회전', 0, 6.28, .1, .01)
+    primaryParam: createParameterDefinition('대칭 분할', 2, 18, 8),
+    secondaryParam: createParameterDefinition('회전', 0, 6.28, .1, .01)
 },
 {
     id: 21,
     name: 'Pixelate',
     category: 'DISTORT',
     desc: '큰 정사각형 픽셀로 블록화합니다.',
-    a: p('픽셀 크기', 2, 110, 25),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('픽셀 크기', 2, 110, 25),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 22,
     name: 'Mosaic Cells',
     category: 'DISTORT',
     desc: '격자 샘플링에 불규칙성을 부여합니다.',
-    a: p('격자 크기', 3, 95, 29),
-    b: p('불규칙성', 0, 1, .7, .01)
+    primaryParam: createParameterDefinition('격자 크기', 3, 95, 29),
+    secondaryParam: createParameterDefinition('불규칙성', 0, 1, .7, .01)
 },
 {
     id: 28,
     name: 'Noise Displace',
     category: 'DISTORT',
     desc: '랜덤 벡터 필드로 이미지 좌표를 왜곡합니다.',
-    a: p('변위 강도', 0, 100, 39),
-    b: p('필드 분할', 2, 130, 29)
+    primaryParam: createParameterDefinition('변위 강도', 0, 100, 39),
+    secondaryParam: createParameterDefinition('필드 분할', 2, 130, 29)
 },
 {
     id: 33,
     name: 'Fluid Warp',
     category: 'DISTORT',
     desc: '중첩 삼각함수 흐름으로 유체처럼 변형합니다.',
-    a: p('움직임 크기', 0, 60, 24),
-    b: p('흐름 복잡도', .5, 12, 4, .5)
+    primaryParam: createParameterDefinition('움직임 크기', 0, 60, 24),
+    secondaryParam: createParameterDefinition('흐름 복잡도', .5, 12, 4, .5)
 },
 {
     id: 38,
     name: 'Mirror',
     category: 'DISTORT',
     desc: '수평, 수직 또는 양축 대칭 복제합니다.',
-    a: p('방향 (0 가로 / 1 세로 / 2 양쪽)', 0, 2, 0),
-    b: p('보조값', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('방향 (0 가로 / 1 세로 / 2 양쪽)', 0, 2, 0),
+    secondaryParam: createParameterDefinition('보조값', 0, 1, .5, .01)
 },
 {
     id: 43,
     name: 'Stained Glass',
     category: 'DISTORT',
     desc: '불규칙 셀 안에서 하나의 색상을 샘플링합니다.',
-    a: p('조각 크기', 5, 80, 28),
-    b: p('불규칙성', 0, 1, .75, .01)
+    primaryParam: createParameterDefinition('조각 크기', 5, 80, 28),
+    secondaryParam: createParameterDefinition('불규칙성', 0, 1, .75, .01)
 },
 
 {
@@ -395,40 +395,40 @@ const EFFECTS = [
     name: 'Duotone Map',
     category: 'COLOR',
     desc: '명도를 두 가지 색상 영역으로 매핑합니다.',
-    a: p('기준 색조', 0, 1, .58, .01),
-    b: p('대비', 0, 1, .55, .01)
+    primaryParam: createParameterDefinition('기준 색조', 0, 1, .58, .01),
+    secondaryParam: createParameterDefinition('대비', 0, 1, .55, .01)
 },
 {
     id: 48,
     name: 'Gradient Map',
     category: 'COLOR',
     desc: '어두움과 밝음을 서로 다른 색상으로 매핑합니다.',
-    a: p('시작 색조', 0, 1, .05, .01),
-    b: p('끝 색조 편차', 0, 1, .38, .01)
+    primaryParam: createParameterDefinition('시작 색조', 0, 1, .05, .01),
+    secondaryParam: createParameterDefinition('끝 색조 편차', 0, 1, .38, .01)
 },
 {
     id: 49,
     name: 'Hue Shift',
     category: 'COLOR',
     desc: '이미지 전체의 색상환을 회전시킵니다.',
-    a: p('색상 이동', 0, 1, .12, .01),
-    b: p('채도 강화', 0, 1, .45, .01)
+    primaryParam: createParameterDefinition('색상 이동', 0, 1, .12, .01),
+    secondaryParam: createParameterDefinition('채도 강화', 0, 1, .45, .01)
 },
 {
     id: 50,
     name: 'Split Tone',
     category: 'COLOR',
     desc: '그림자와 하이라이트에 서로 다른 색조를 입힙니다.',
-    a: p('기준 색조', 0, 1, .62, .01),
-    b: p('톤 강도', 0, 1, .58, .01)
+    primaryParam: createParameterDefinition('기준 색조', 0, 1, .62, .01),
+    secondaryParam: createParameterDefinition('톤 강도', 0, 1, .58, .01)
 },
 {
     id: 56,
     name: 'Infrared False Color',
     category: 'COLOR',
     desc: '적외선처럼 차가운 색에서 뜨거운 색으로 거짓 색상화합니다.',
-    a: p('차가운 톤', 0, 1, .4, .01),
-    b: p('뜨거운 톤', 0, 1, .52, .01)
+    primaryParam: createParameterDefinition('차가운 톤', 0, 1, .4, .01),
+    secondaryParam: createParameterDefinition('뜨거운 톤', 0, 1, .52, .01)
 },
 
 {
@@ -436,80 +436,80 @@ const EFFECTS = [
     name: 'Paper Fibers',
     category: 'TEXTURE',
     desc: '종이 섬유와 미세한 표면 거칠기를 추가합니다.',
-    a: p('섬유 강도', 0, 1, .45, .01),
-    b: p('섬유 스케일', 0, 1, .55, .01)
+    primaryParam: createParameterDefinition('섬유 강도', 0, 1, .45, .01),
+    secondaryParam: createParameterDefinition('섬유 스케일', 0, 1, .55, .01)
 },
 {
     id: 53,
     name: 'Frosted Glass',
     category: 'TEXTURE',
     desc: '성애 낀 유리처럼 퍼지고 흐트러진 표면을 만듭니다.',
-    a: p('왜곡량', 0, 1, .48, .01),
-    b: p('결 크기', 0, 1, .58, .01)
+    primaryParam: createParameterDefinition('왜곡량', 0, 1, .48, .01),
+    secondaryParam: createParameterDefinition('결 크기', 0, 1, .58, .01)
 },
 {
     id: 54,
     name: 'Ink Bleed',
     category: 'TEXTURE',
     desc: '잉크가 번진 듯 가장자리를 먹먹하게 퍼뜨립니다.',
-    a: p('번짐 반경', 0, 1, .36, .01),
-    b: p('거칠기', 0, 1, .42, .01)
+    primaryParam: createParameterDefinition('번짐 반경', 0, 1, .36, .01),
+    secondaryParam: createParameterDefinition('거칠기', 0, 1, .42, .01)
 },
 {
     id: 55,
     name: 'Holographic Sheen',
     category: 'TEXTURE',
     desc: '무지갯빛 홀로그램 막처럼 표면 광택을 얹습니다.',
-    a: p('색조 위치', 0, 1, .2, .01),
-    b: p('광택량', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('색조 위치', 0, 1, .2, .01),
+    secondaryParam: createParameterDefinition('광택량', 0, 1, .5, .01)
 },
 {
     id: 58,
     name: 'Marble Veins',
     category: 'TEXTURE',
     desc: '대리석 같은 결무늬를 입혀 특수 표면감을 만듭니다.',
-    a: p('결 강도', 0, 1, .44, .01),
-    b: p('결 밀도', 0, 1, .46, .01)
+    primaryParam: createParameterDefinition('결 강도', 0, 1, .44, .01),
+    secondaryParam: createParameterDefinition('결 밀도', 0, 1, .46, .01)
 },
 {
     id: 63,
     name: 'Canvas Weave',
     category: 'TEXTURE',
     desc: '캔버스 천의 직조 결을 이미지 위에 입힙니다.',
-    a: p('결 강도', 0, 1, .38, .01),
-    b: p('직조 크기', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('결 강도', 0, 1, .38, .01),
+    secondaryParam: createParameterDefinition('직조 크기', 0, 1, .5, .01)
 },
 {
     id: 64,
     name: 'Paper Grain',
     category: 'TEXTURE',
     desc: '거친 종이 표면과 잔입자를 추가합니다.',
-    a: p('입자량', 0, 1, .42, .01),
-    b: p('섬유 크기', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('입자량', 0, 1, .42, .01),
+    secondaryParam: createParameterDefinition('섬유 크기', 0, 1, .5, .01)
 },
 {
     id: 72,
     name: 'Watercolor Paper',
     category: 'TEXTURE',
     desc: '수채화지의 요철과 흡수된 결을 만듭니다.',
-    a: p('종이 강도', 0, 1, .44, .01),
-    b: p('흡수감', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('종이 강도', 0, 1, .44, .01),
+    secondaryParam: createParameterDefinition('흡수감', 0, 1, .5, .01)
 },
 {
     id: 75,
     name: 'Sponge Texture',
     category: 'TEXTURE',
     desc: '스펀지로 두드린 듯한 얼룩과 반점 질감을 만듭니다.',
-    a: p('반점 양', 0, 1, .48, .01),
-    b: p('패턴 크기', 0, 1, .54, .01)
+    primaryParam: createParameterDefinition('반점 양', 0, 1, .48, .01),
+    secondaryParam: createParameterDefinition('패턴 크기', 0, 1, .54, .01)
 },
 {
     id: 76,
     name: 'Stucco Relief',
     category: 'TEXTURE',
     desc: '벽면 플라스터 같은 요철 텍스처를 생성합니다.',
-    a: p('요철 강도', 0, 1, .46, .01),
-    b: p('입자 스케일', 0, 1, .52, .01)
+    primaryParam: createParameterDefinition('요철 강도', 0, 1, .46, .01),
+    secondaryParam: createParameterDefinition('입자 스케일', 0, 1, .52, .01)
 },
 
 {
@@ -517,72 +517,72 @@ const EFFECTS = [
     name: 'Crayon',
     category: 'ANALOG',
     desc: '크레용으로 덧칠한 듯 거칠고 부드러운 스트로크를 만듭니다.',
-    a: p('스트로크 양', 0, 1, .48, .01),
-    b: p('색 단순화', 0, 1, .38, .01)
+    primaryParam: createParameterDefinition('스트로크 양', 0, 1, .48, .01),
+    secondaryParam: createParameterDefinition('색 단순화', 0, 1, .38, .01)
 },
 {
     id: 66,
     name: 'Oil Pastel',
     category: 'ANALOG',
     desc: '오일 파스텔처럼 두툼하고 문질러진 색면을 만듭니다.',
-    a: p('뭉침 강도', 0, 1, .52, .01),
-    b: p('문지름 양', 0, 1, .44, .01)
+    primaryParam: createParameterDefinition('뭉침 강도', 0, 1, .52, .01),
+    secondaryParam: createParameterDefinition('문지름 양', 0, 1, .44, .01)
 },
 {
     id: 67,
     name: 'Chalk Dust',
     category: 'ANALOG',
     desc: '분필가루가 날리는 듯한 매트한 재질을 입힙니다.',
-    a: p('가루 양', 0, 1, .46, .01),
-    b: p('거칠기', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('가루 양', 0, 1, .46, .01),
+    secondaryParam: createParameterDefinition('거칠기', 0, 1, .5, .01)
 },
 {
     id: 68,
     name: 'Charcoal',
     category: 'ANALOG',
     desc: '목탄으로 문지른 듯한 흑연성 명암과 번짐을 만듭니다.',
-    a: p('문지름 양', 0, 1, .44, .01),
-    b: p('선 강도', 0, 1, .55, .01)
+    primaryParam: createParameterDefinition('문지름 양', 0, 1, .44, .01),
+    secondaryParam: createParameterDefinition('선 강도', 0, 1, .55, .01)
 },
 {
     id: 69,
     name: 'Dry Brush',
     category: 'ANALOG',
     desc: '마른 붓자국처럼 듬성듬성 끊기는 획을 생성합니다.',
-    a: p('붓결 양', 0, 1, .46, .01),
-    b: p('거침', 0, 1, .5, .01)
+    primaryParam: createParameterDefinition('붓결 양', 0, 1, .46, .01),
+    secondaryParam: createParameterDefinition('거침', 0, 1, .5, .01)
 },
 {
     id: 70,
     name: 'Impasto',
     category: 'ANALOG',
     desc: '두껍게 올라간 물감의 입체적인 붓 터치를 만듭니다.',
-    a: p('물감 두께', 0, 1, .5, .01),
-    b: p('붓 결 방향성', 0, 1, .44, .01)
+    primaryParam: createParameterDefinition('물감 두께', 0, 1, .5, .01),
+    secondaryParam: createParameterDefinition('붓 결 방향성', 0, 1, .44, .01)
 },
 {
     id: 71,
     name: 'Colored Pencil',
     category: 'ANALOG',
     desc: '색연필의 사선 결을 유지하면서 색을 다시 칠합니다.',
-    a: p('선 밀도', 0, 1, .42, .01),
-    b: p('채색량', 0, 1, .52, .01)
+    primaryParam: createParameterDefinition('선 밀도', 0, 1, .42, .01),
+    secondaryParam: createParameterDefinition('채색량', 0, 1, .52, .01)
 },
 {
     id: 73,
     name: 'Gouache Flat',
     category: 'ANALOG',
     desc: '불투명 과슈처럼 색면을 깔끔하게 정리하고 종이 재질을 남깁니다.',
-    a: p('평탄화', 0, 1, .44, .01),
-    b: p('재질 혼합', 0, 1, .4, .01)
+    primaryParam: createParameterDefinition('평탄화', 0, 1, .44, .01),
+    secondaryParam: createParameterDefinition('재질 혼합', 0, 1, .4, .01)
 },
 {
     id: 77,
     name: 'Wax Crayon',
     category: 'ANALOG',
     desc: '왁스가 묻어난 크레파스 같은 미끄러운 질감을 만듭니다.',
-    a: p('왁스 양', 0, 1, .48, .01),
-    b: p('문지름 양', 0, 1, .46, .01)
+    primaryParam: createParameterDefinition('왁스 양', 0, 1, .48, .01),
+    secondaryParam: createParameterDefinition('문지름 양', 0, 1, .46, .01)
 },
 
 {
@@ -590,24 +590,24 @@ const EFFECTS = [
     name: 'Neon Glow',
     category: 'LIGHT',
     desc: '밝은 영역에 컬러 네온광을 씌웁니다.',
-    a: p('네온 색조', 0, 1, .53, .01),
-    b: p('발광량', 0, 1, .72, .01)
+    primaryParam: createParameterDefinition('네온 색조', 0, 1, .53, .01),
+    secondaryParam: createParameterDefinition('발광량', 0, 1, .72, .01)
 },
 {
     id: 59,
     name: 'Neon Poster',
     category: 'LIGHT',
     desc: '포스터라이즈와 형광 윤곽광을 결합합니다.',
-    a: p('단계 수', 0, 1, .45, .01),
-    b: p('형광량', 0, 1, .62, .01)
+    primaryParam: createParameterDefinition('단계 수', 0, 1, .45, .01),
+    secondaryParam: createParameterDefinition('형광량', 0, 1, .62, .01)
 },
 {
     id: 62,
     name: 'Haze Wash',
     category: 'LIGHT',
     desc: '부드러운 헤이즈와 공기감을 더해 몽환적인 세척 효과를 만듭니다.',
-    a: p('헤이즈 반경', 0, 1, .3, .01),
-    b: p('색조량', 0, 1, .3, .01)
+    primaryParam: createParameterDefinition('헤이즈 반경', 0, 1, .3, .01),
+    secondaryParam: createParameterDefinition('색조량', 0, 1, .3, .01)
 },
 
 {
@@ -615,32 +615,32 @@ const EFFECTS = [
     name: 'Difference Shift',
     category: 'BLENDING',
     desc: '원본 또는 두 번째 이미지와의 절대 차이를 계산합니다.',
-    a: p('수평 이동', -250, 250, 32),
-    b: p('수직 이동', -250, 250, 0)
+    primaryParam: createParameterDefinition('수평 이동', -250, 250, 32),
+    secondaryParam: createParameterDefinition('수직 이동', -250, 250, 0)
 },
 {
     id: 40,
     name: 'Exclusion Shift',
     category: 'BLENDING',
     desc: '원본/두 번째 이미지를 Exclusion 연산으로 결합합니다.',
-    a: p('수평 이동', -250, 250, 30),
-    b: p('수직 이동', -250, 250, 0)
+    primaryParam: createParameterDefinition('수평 이동', -250, 250, 30),
+    secondaryParam: createParameterDefinition('수직 이동', -250, 250, 0)
 },
 {
     id: 41,
     name: 'Double Exposure',
     category: 'BLENDING',
     desc: '원본/두 번째 이미지를 겹쳐 다중 노출을 구현합니다.',
-    a: p('수평 이동', -250, 250, 44),
-    b: p('수직 이동', -250, 250, 0)
+    primaryParam: createParameterDefinition('수평 이동', -250, 250, 44),
+    secondaryParam: createParameterDefinition('수직 이동', -250, 250, 0)
 },
 {
     id: 42,
     name: 'Ghost Trail',
     category: 'BLENDING',
     desc: '이미지 복제본을 여러 위치에 겹쳐 잔상을 만듭니다.',
-    a: p('수평 거리', -140, 140, 25),
-    b: p('수직 거리', -140, 140, 0)
+    primaryParam: createParameterDefinition('수평 거리', -140, 140, 25),
+    secondaryParam: createParameterDefinition('수직 거리', -140, 140, 0)
 },
 
 {
@@ -648,29 +648,33 @@ const EFFECTS = [
     name: 'Prism Split',
     category: 'EXPERIMENTAL',
     desc: '가장자리 쪽으로 프리즘처럼 스펙트럼을 갈라냅니다.',
-    a: p('분리량', 0, 1, .48, .01),
-    b: p('혼합량', 0, 1, .58, .01)
+    primaryParam: createParameterDefinition('분리량', 0, 1, .48, .01),
+    secondaryParam: createParameterDefinition('혼합량', 0, 1, .58, .01)
 },
 {
     id: 60,
     name: 'Chameleon Shift',
     category: 'EXPERIMENTAL',
     desc: '영역별로 색이 적응하듯 변하는 카멜레온 전용 필터입니다.',
-    a: p('변이 강도', 0, 1, .38, .01),
-    b: p('패치 크기', 0, 1, .44, .01)
+    primaryParam: createParameterDefinition('변이 강도', 0, 1, .38, .01),
+    secondaryParam: createParameterDefinition('패치 크기', 0, 1, .44, .01)
 },
 {
     id: 61,
     name: 'Luma Melt',
     category: 'EXPERIMENTAL',
     desc: '밝기 정보가 아래로 녹아내리듯 흐르는 특이한 잔상 효과입니다.',
-    a: p('흐름량', 0, 1, .4, .01),
-    b: p('분할 크기', 0, 1, .52, .01)
+    primaryParam: createParameterDefinition('흐름량', 0, 1, .4, .01),
+    secondaryParam: createParameterDefinition('분할 크기', 0, 1, .52, .01)
 }
-];
+].sort((firstEffect, secondEffect) => firstEffect.id - secondEffect.id)
+    .map((effect, index) => ({
+        ...effect,
+        id: index
+    }));
 const BLENDS = [['Normal', 0], ['Dissolve', 15], ['Multiply', 1], ['Screen', 2], ['Overlay', 3], ['Difference', 4], ['Exclusion', 5], ['Add', 6], ['Subtract', 7], ['Darken', 8], ['Lighten', 9], ['Color Dodge', 10], ['Color Burn', 11], ['Hard Light', 12], ['Soft Light', 13], ['Divide', 14]];
 const CATEGORIES = ['ALL', 'TONAL', 'PRINT', 'BLUR', 'EDGES', 'GLITCH', 'DISTORT', 'COLOR', 'TEXTURE', 'ANALOG', 'LIGHT', 'BLENDING', 'EXPERIMENTAL'];
-const byId = new Map(EFFECTS.map(e => [e.id, e]));
+const effectsById = new Map(EFFECTS.map(e => [e.id, e]));
 const $ = id => document.getElementById(id);
 const trackAnalytics = (event, params = {}) => window.CHAMELEON_ANALYTICS?.track?.(event, params);
 const reportAnalyticsError = (feature, error) => window.CHAMELEON_ANALYTICS?.error?.(feature, error);
@@ -711,7 +715,7 @@ const previewLimit = () => onTouchDevice() ? 900 : 1400;
 function switchPanel(panel) {
     if (!['filters', 'stack', 'adjust'].includes(panel))
         return;
-    const workspace = $('workspace');
+    const workspace = getElement('workspace');
     workspace.dataset.activePanel = panel;
     document.querySelectorAll('.mobile-tab').forEach(btn => {
         const active = btn.dataset.panel === panel;
@@ -729,10 +733,10 @@ function refreshThumbsVisible() {
         });
 }
 function notify(message) {
-    $('toast').textContent = message;
-    $('toast').classList.add('show');
+    getElement('toast').textContent = message;
+    getElement('toast').classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => $('toast').classList.remove('show'), 2800);
+    toastTimer = setTimeout(() => getElement('toast').classList.remove('show'), 2800);
 }
 
 // Per-session history of both image layers and effects. Images are held by reference;
@@ -758,8 +762,8 @@ function captureHistory() {
     };
 }
 function updateHistoryButtons() {
-    const undoBtn = $('undoBtn'),
-        redoBtn = $('redoBtn');
+    const undoBtn = getElement('undoBtn'),
+        redoBtn = getElement('redoBtn');
     if (undoBtn)
         undoBtn.disabled = history.past.length === 0;
     if (redoBtn)
@@ -786,9 +790,9 @@ function beginHistoryGesture(control) {
         once: true
     });
 }
-function sameImageLayers(a, b) {
-    return a.length === b.length && a.every((layer, i) => {
-            const other = b[i];
+function sameImageLayers(previousLayers, nextLayers) {
+    return previousLayers.length === nextLayers.length && previousLayers.every((layer, index) => {
+            const other = nextLayers[index];
             return layer.key === other.key && layer.img === other.img &&
                 layer.opacity === other.opacity && layer.blend === other.blend && layer.visible === other.visible &&
                 layer.x === other.x && layer.y === other.y && layer.scale === other.scale &&
@@ -839,7 +843,7 @@ function redo() {
     notify('편집을 다시 적용했습니다.');
 }
 
-function fmt(x) {
+function formatParameterValue(x) {
     return Number.isInteger(+x) ? String(x) : (+x).toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
 }
 function debounce(fn, ms) {
@@ -869,16 +873,33 @@ function sampleImage() {
     });
 }
 function newLayer(id) {
-    const fx = byId.get(id);
+    const effect = effectsById.get(id);
     return {
         key: nextKey++,
         id,
-        a: fx.a.def,
-        b: fx.b.def,
+        primaryParam: effect.primaryParam.def,
+        secondaryParam: effect.secondaryParam.def,
         opacity: 100,
         blend: 0,
         enabled: true,
         seed: Math.random() * 1000 | 0
+    };
+}
+function clampEffectParameter(parameterDefinition, value) {
+    const numericValue = Number(value);
+    const normalizedValue = Number.isFinite(numericValue) ? numericValue : parameterDefinition.def;
+    return Math.min(parameterDefinition.max, Math.max(parameterDefinition.min, normalizedValue));
+}
+function hydrateEffectLayer(storedLayer) {
+    const effect = effectsById.get(storedLayer.id);
+    const defaultLayer = newLayer(storedLayer.id);
+    const { a: legacyPrimaryParam, b: legacySecondaryParam, ...currentLayer } = storedLayer;
+    return {
+        ...defaultLayer,
+        ...currentLayer,
+        key: defaultLayer.key,
+        primaryParam: clampEffectParameter(effect.primaryParam, currentLayer.primaryParam ?? legacyPrimaryParam),
+        secondaryParam: clampEffectParameter(effect.secondaryParam, currentLayer.secondaryParam ?? legacySecondaryParam)
     };
 }
 const LAYER_BLENDS = [['Normal', 'source-over'], ['Multiply', 'multiply'], ['Screen', 'screen'], ['Overlay', 'overlay'], ['Difference', 'difference'], ['Exclusion', 'exclusion'], ['Lighten', 'lighten'], ['Darken', 'darken'], ['Soft Light', 'soft-light'], ['Hard Light', 'hard-light']];
@@ -996,7 +1017,7 @@ function commitImageLayers() {
     rebuildComposite();
 }
 function renderCategories() {
-    const root = $('categories');
+    const root = getElement('categories');
     root.innerHTML = CATEGORIES.map(cat => `<button class="category ${state.category === cat ? 'selected' : ''}" data-cat="${cat}">${cat}</button>`).join('');
     root.querySelectorAll('button').forEach(btn => btn.onclick = () => {
         state.category = btn.dataset.cat;
@@ -1009,8 +1030,8 @@ function filteredEffects() {
 }
 function renderLibrary() {
     const list = filteredEffects();
-    $('effectCount').textContent = String(list.length).padStart(2, '0');
-    const grid = $('effectGrid');
+    getElement('effectCount').textContent = String(list.length).padStart(2, '0');
+    const grid = getElement('effectGrid');
     if (!list.length) {
         grid.innerHTML = '<div class="empty-search">검색 결과가 없습니다.<br/>다른 키워드나 카테고리를 시도해보세요.</div>';
         return;
@@ -1066,7 +1087,7 @@ function generateThumbs(effects) {
         while (queue.length && processed < 2) {
             const item = queue.shift();
             processed++;
-            const card = $('effectGrid').querySelector(`[data-id="${item.id}"]`);
+            const card = getElement('effectGrid').querySelector(`[data-id="${item.id}"]`);
             if (!card)
                 continue;
             const node = card.querySelector('.thumb');
@@ -1075,15 +1096,15 @@ function generateThumbs(effects) {
             try {
                 let src = fallbackSource;
                 if (!src) {
-                    const fx = byId.get(item.id);
+                    const effect = effectsById.get(item.id);
                     thumbEngine.render([{
-                        id: fx.id,
-                        a: fx.a.def,
-                        b: fx.b.def,
+                        id: effect.id,
+                        primaryParam: effect.primaryParam.def,
+                        secondaryParam: effect.secondaryParam.def,
                         opacity: 100,
                         blend: 0,
                         enabled: true,
-                        seed: 7 + fx.id * 13
+                        seed: 7 + effect.id * 13
                     }], false);
                     src = thumbEngine.canvas.toDataURL('image/jpeg', .7);
                 }
@@ -1111,7 +1132,7 @@ function generateThumbs(effects) {
             requestAnimationFrame(drain);
         }
     };
-    const cardList = Array.from($('effectGrid').querySelectorAll('.effect-card'));
+    const cardList = Array.from(getElement('effectGrid').querySelectorAll('.effect-card'));
     if ('IntersectionObserver' in window) {
         const effectMap = new Map(effects.map(e => [e.id, e]));
         thumbObserver?.disconnect();
@@ -1125,7 +1146,7 @@ function generateThumbs(effects) {
                 }
             }
         }, {
-            root: $('effectsScroll'),
+            root: getElement('effectsScroll'),
             rootMargin: '220px 0px',
             threshold: 0.01
         });
@@ -1134,10 +1155,10 @@ function generateThumbs(effects) {
         effects.forEach(enqueue);
 }
 function updateImageLayers() {
-    const root = $('imageLayerList');
+    const root = getElement('imageLayerList');
     if (!root)
         return;
-    $('imageLayerCount').textContent = String(state.imageLayers.length).padStart(2, '0');
+    getElement('imageLayerCount').textContent = String(state.imageLayers.length).padStart(2, '0');
     if (!state.imageLayers.length) {
         root.innerHTML = '<div class="stack-blank"><div class="blank-mark">▣</div><strong>NO IMAGE LAYERS</strong><p>이미지를 업로드해 베이스를 만들어주세요.</p></div>';
         updateCanvasOverlay();
@@ -1182,18 +1203,18 @@ function updateImageLayers() {
     updateCanvasOverlay();
 }
 function updateStack() {
-    $('stackCount').textContent = String(state.layers.length).padStart(2, '0');
-    if ($('mobileStackCount'))
-        $('mobileStackCount').textContent = String(state.layers.length);
+    getElement('stackCount').textContent = String(state.layers.length).padStart(2, '0');
+    if (getElement('mobileStackCount'))
+        getElement('mobileStackCount').textContent = String(state.layers.length);
     if (!state.layers.length) {
-        $('stackList').innerHTML = '<div class="stack-blank"><div class="blank-mark">✳</div><strong>YOUR EFFECT STACK IS CLEAR</strong><p>왼쪽의 효과를 클릭해<br/>새로운 조합을 만들어 보세요.</p></div>';
+        getElement('stackList').innerHTML = '<div class="stack-blank"><div class="blank-mark">✳</div><strong>YOUR EFFECT STACK IS CLEAR</strong><p>왼쪽의 효과를 클릭해<br/>새로운 조합을 만들어 보세요.</p></div>';
         return;
     }
-    $('stackList').innerHTML = state.layers.map((l, i) => {
-        let e = byId.get(l.id);
-        return `<div class="stack-item ${state.selection === l.key ? 'selected' : ''} ${l.enabled ? '' : 'is-off'}" data-key="${l.key}" role="button" tabindex="0"><div class="stack-main"><span class="stack-number">${String(i + 1).padStart(2, '0')}</span><span class="stack-name">${escapeHtml(e.name)}</span><div class="stack-controls"><button class="tiny-icon" data-action="toggle" title="켜기/끄기">${l.enabled ? '◉' : '◌'}</button><button class="tiny-icon" data-action="up" title="위로 이동" ${i === 0 ? 'disabled' : ''}>↑</button><button class="tiny-icon" data-action="down" title="아래로 이동" ${i === state.layers.length - 1 ? 'disabled' : ''}>↓</button><button class="tiny-icon remove" data-action="remove" title="삭제">×</button></div></div><div class="stack-sub"><span>${e.category}</span><span><strong>${l.opacity}%</strong> · ${BLENDS.find(b => b[1] === l.blend)?.[0] || 'Normal'}</span></div></div>`;
+    getElement('stackList').innerHTML = state.layers.map((effectLayer, index) => {
+        const effect = effectsById.get(effectLayer.id);
+        return `<div class="stack-item ${state.selection === effectLayer.key ? 'selected' : ''} ${effectLayer.enabled ? '' : 'is-off'}" data-key="${effectLayer.key}" role="button" tabindex="0"><div class="stack-main"><span class="stack-number">${String(index + 1).padStart(2, '0')}</span><span class="stack-name">${escapeHtml(effect.name)}</span><div class="stack-controls"><button class="tiny-icon" data-action="toggle" title="켜기/끄기">${effectLayer.enabled ? '◉' : '◌'}</button><button class="tiny-icon" data-action="up" title="위로 이동" ${index === 0 ? 'disabled' : ''}>↑</button><button class="tiny-icon" data-action="down" title="아래로 이동" ${index === state.layers.length - 1 ? 'disabled' : ''}>↓</button><button class="tiny-icon remove" data-action="remove" title="삭제">×</button></div></div><div class="stack-sub"><span>${effect.category}</span><span><strong>${effectLayer.opacity}%</strong> · ${BLENDS.find(blendOption => blendOption[1] === effectLayer.blend)?.[0] || 'Normal'}</span></div></div>`;
     }).join('');
-    $('stackList').querySelectorAll('.stack-item').forEach(item => {
+    getElement('stackList').querySelectorAll('.stack-item').forEach(item => {
         const key = +item.dataset.key;
         item.onclick = e => {
             const btn = e.target.closest('button[data-action]');
@@ -1240,28 +1261,28 @@ function blendHelp(blend) {
     return '현재 스택의 이미지와 새 효과 결과를 이 방식으로 혼합합니다.';
 }
 function updateSettings() {
-    const root = $('settingsContent');
+    const root = getElement('settingsContent');
     const imgLayer = state.imageLayers.find(x => x.key === state.selectedImageLayer);
     const fxLayer = state.layers.find(x => x.key === state.selection);
-    $('resetEffectBtn').hidden = !fxLayer;
+    getElement('resetEffectBtn').hidden = !fxLayer;
     if (imgLayer) {
-        $('resetEffectBtn').hidden = true;
-        root.innerHTML = `<div class="selected-effect-head"><div class="subtype">IMAGE LAYER</div><h3>${escapeHtml(imgLayer.name)}</h3><p>이미지 레이어의 위치, 크기, 투명도, 혼합 방식을 조절합니다.</p></div><div class="field"><div class="field-row"><label for="field-layer-opacity">레이어 불투명도</label><output id="value-layer-opacity">${imgLayer.opacity}%</output></div><input id="field-layer-opacity" type="range" min="0" max="100" step="1" value="${imgLayer.opacity}"/></div><div class="field"><div class="field-row"><label for="field-layer-scale">크기</label><output id="value-layer-scale">${fmt(imgLayer.scale)}x</output></div><input id="field-layer-scale" type="range" min="0.05" max="8" step="0.01" value="${imgLayer.scale}"/></div><div class="field"><div class="field-row"><label for="field-layer-x">가로 위치</label><output id="value-layer-x">${imgLayer.x}%</output></div><input id="field-layer-x" type="range" min="-200" max="200" step="1" value="${imgLayer.x}"/></div><div class="field"><div class="field-row"><label for="field-layer-y">세로 위치</label><output id="value-layer-y">${imgLayer.y}%</output></div><input id="field-layer-y" type="range" min="-200" max="200" step="1" value="${imgLayer.y}"/></div><div class="field"><div class="field-row"><label for="field-layer-rotation">회전</label><output id="value-layer-rotation">${imgLayer.rotation}°</output></div><input id="field-layer-rotation" type="range" min="-180" max="180" step="1" value="${imgLayer.rotation}"/></div><div class="field"><div class="field-row"><label for="field-layer-blend">레이어 혼합</label></div><select id="field-layer-blend">${LAYER_BLENDS.map(([name, val]) => `<option value="${val}" ${imgLayer.blend === val ? 'selected' : ''}>${name}</option>`).join('')}</select><p class="blend-explainer" id="blendHelp">${layerBlendHelp(imgLayer.blend)}</p></div>`;
+        getElement('resetEffectBtn').hidden = true;
+        root.innerHTML = `<div class="selected-effect-head"><div class="subtype">IMAGE LAYER</div><h3>${escapeHtml(imgLayer.name)}</h3><p>이미지 레이어의 위치, 크기, 투명도, 혼합 방식을 조절합니다.</p></div><div class="field"><div class="field-row"><label for="field-layer-opacity">레이어 불투명도</label><output id="value-layer-opacity">${imgLayer.opacity}%</output></div><input id="field-layer-opacity" type="range" min="0" max="100" step="1" value="${imgLayer.opacity}"/></div><div class="field"><div class="field-row"><label for="field-layer-scale">크기</label><output id="value-layer-scale">${formatParameterValue(imgLayer.scale)}x</output></div><input id="field-layer-scale" type="range" min="0.05" max="8" step="0.01" value="${imgLayer.scale}"/></div><div class="field"><div class="field-row"><label for="field-layer-x">가로 위치</label><output id="value-layer-x">${imgLayer.x}%</output></div><input id="field-layer-x" type="range" min="-200" max="200" step="1" value="${imgLayer.x}"/></div><div class="field"><div class="field-row"><label for="field-layer-y">세로 위치</label><output id="value-layer-y">${imgLayer.y}%</output></div><input id="field-layer-y" type="range" min="-200" max="200" step="1" value="${imgLayer.y}"/></div><div class="field"><div class="field-row"><label for="field-layer-rotation">회전</label><output id="value-layer-rotation">${imgLayer.rotation}°</output></div><input id="field-layer-rotation" type="range" min="-180" max="180" step="1" value="${imgLayer.rotation}"/></div><div class="field"><div class="field-row"><label for="field-layer-blend">레이어 혼합</label></div><select id="field-layer-blend">${LAYER_BLENDS.map(([name, val]) => `<option value="${val}" ${imgLayer.blend === val ? 'selected' : ''}>${name}</option>`).join('')}</select><p class="blend-explainer" id="blendHelp">${layerBlendHelp(imgLayer.blend)}</p></div>`;
         [['opacity', 'layer-opacity', '%'], ['scale', 'layer-scale', 'x'], ['x', 'layer-x', '%'], ['y', 'layer-y', '%'], ['rotation', 'layer-rotation', '°']].forEach(([key, id, suffix]) => {
-            $('field-' + id).addEventListener('input', e => {
+            getElement('field-' + id).addEventListener('input', e => {
                 beginHistoryGesture(e.target);
                 imgLayer[key] = +e.target.value;
-                $('value-' + id).textContent = fmt(imgLayer[key]) + suffix;
+                getElement('value-' + id).textContent = formatParameterValue(imgLayer[key]) + suffix;
                 updateImageLayers();
                 rebuildComposite(false);
             });
         });
-        $('field-layer-blend').onchange = e => {
+        getElement('field-layer-blend').onchange = e => {
             if (imgLayer.blend === e.target.value)
                 return;
             recordHistory();
             imgLayer.blend = e.target.value;
-            $('blendHelp').textContent = layerBlendHelp(imgLayer.blend);
+            getElement('blendHelp').textContent = layerBlendHelp(imgLayer.blend);
             updateImageLayers();
             rebuildComposite(false);
         };
@@ -1271,41 +1292,41 @@ function updateSettings() {
         root.innerHTML = '<div class="params-placeholder"><div class="icon-big">⌁</div><strong>SELECT AN IMAGE LAYER OR EFFECT</strong><p>이미지 레이어를 선택해 위치를 조절하거나,<br/>효과를 선택해 파라미터를 바꿔보세요.</p></div>';
         return;
     }
-    const e = byId.get(fxLayer.id);
-    const field = (key, def) => `<div class="field"><div class="field-row"><label for="field-${key}">${escapeHtml(def.label)}</label><output id="value-${key}">${fmt(fxLayer[key])}</output></div><input id="field-${key}" type="range" min="${def.min}" max="${def.max}" step="${def.step}" value="${fxLayer[key]}"/></div>`;
+    const effect = effectsById.get(fxLayer.id);
+    const field = (parameterName, parameterDefinition) => `<div class="field"><div class="field-row"><label for="field-${parameterName}">${escapeHtml(parameterDefinition.label)}</label><output id="value-${parameterName}">${formatParameterValue(fxLayer[parameterName])}</output></div><input id="field-${parameterName}" type="range" min="${parameterDefinition.min}" max="${parameterDefinition.max}" step="${parameterDefinition.step}" value="${fxLayer[parameterName]}"/></div>`;
     const secondaryNote = [39, 40, 41].includes(fxLayer.id) ? `<div class="second-image-status">${state.imageLayers.length > 1 ? '● 추가 이미지 레이어가 보조 입력으로 함께 합성됩니다.' : '○ 현재는 단일 이미지입니다. 여러 이미지 레이어를 추가하면 더 흥미로운 결과를 얻을 수 있어요.'}</div>` : '';
-    root.innerHTML = `<div class="selected-effect-head"><div class="subtype">${e.category} / EFFECT ${String(e.id + 1).padStart(2, '0')}</div><h3>${escapeHtml(e.name)}</h3><p>${escapeHtml(e.desc)}</p></div>${e.id === 13 ? '' : field('a', e.a)}${e.b.label === '보조값' ? '' : field('b', e.b)}<div class="field"><div class="field-row"><label for="field-opacity">효과 강도 / 불투명도</label><output id="value-opacity">${fxLayer.opacity}%</output></div><input id="field-opacity" type="range" min="0" max="100" step="1" value="${fxLayer.opacity}"/></div><div class="field"><div class="field-row"><label for="field-blend">BLEND MODE</label></div><select id="field-blend">${BLENDS.map(([name, id]) => `<option value="${id}" ${fxLayer.blend === id ? 'selected' : ''}>${name}</option>`).join('')}</select><p class="blend-explainer" id="blendHelp">${blendHelp(fxLayer.blend)}</p></div>${secondaryNote}`;
-    ['a', 'b', 'opacity'].filter(key => $('field-' + key)).forEach(key => {
-        $('field-' + key).addEventListener('input', ev => {
-            beginHistoryGesture(ev.target);
-            fxLayer[key] = +ev.target.value;
-            $('value-' + key).textContent = fmt(fxLayer[key]) + (key === 'opacity' ? '%' : '');
+    root.innerHTML = `<div class="selected-effect-head"><div class="subtype">${effect.category} / EFFECT ${String(effect.id + 1).padStart(2, '0')}</div><h3>${escapeHtml(effect.name)}</h3><p>${escapeHtml(effect.desc)}</p></div>${effect.id === 13 ? '' : field('primaryParam', effect.primaryParam)}${effect.secondaryParam.label === '보조값' ? '' : field('secondaryParam', effect.secondaryParam)}<div class="field"><div class="field-row"><label for="field-opacity">효과 강도 / 불투명도</label><output id="value-opacity">${fxLayer.opacity}%</output></div><input id="field-opacity" type="range" min="0" max="100" step="1" value="${fxLayer.opacity}"/></div><div class="field"><div class="field-row"><label for="field-blend">BLEND MODE</label></div><select id="field-blend">${BLENDS.map(([name, id]) => `<option value="${id}" ${fxLayer.blend === id ? 'selected' : ''}>${name}</option>`).join('')}</select><p class="blend-explainer" id="blendHelp">${blendHelp(fxLayer.blend)}</p></div>${secondaryNote}`;
+    ['primaryParam', 'secondaryParam', 'opacity'].filter(parameterName => getElement('field-' + parameterName)).forEach(parameterName => {
+        getElement('field-' + parameterName).addEventListener('input', event => {
+            beginHistoryGesture(event.target);
+            fxLayer[parameterName] = +event.target.value;
+            getElement('value-' + parameterName).textContent = formatParameterValue(fxLayer[parameterName]) + (parameterName === 'opacity' ? '%' : '');
             scheduleRender();
             refreshLayerInfo();
             schedulePersistence();
         });
-        $('field-' + key).addEventListener('change', () => updateStack());
+        getElement('field-' + parameterName).addEventListener('change', () => updateStack());
     });
-    $('field-blend').onchange = e2 => {
+    getElement('field-blend').onchange = e2 => {
         if (fxLayer.blend === +e2.target.value)
             return;
         recordHistory();
         fxLayer.blend = +e2.target.value;
-        $('blendHelp').textContent = blendHelp(fxLayer.blend);
+        getElement('blendHelp').textContent = blendHelp(fxLayer.blend);
         commitStack();
     };
-    $('resetEffectBtn').hidden = false;
+    getElement('resetEffectBtn').hidden = false;
 }
 function refreshLayerInfo() {
     const visibleImages = state.imageLayers.filter(x => x.visible).length;
-    $('layerInfo').textContent = `${visibleImages} IMAGE LAYERS · ${state.layers.filter(x => x.enabled).length} ACTIVE EFFECTS`;
+    getElement('layerInfo').textContent = `${visibleImages} IMAGE LAYERS · ${state.layers.filter(x => x.enabled).length} ACTIVE EFFECTS`;
 }
 const schedulePersistence = debounce(() => {
     try {
-        localStorage.setItem('chameleon_stack', JSON.stringify(state.layers.map(({id, a, b, opacity, blend, enabled, seed}) => ({
+        localStorage.setItem('chameleon_stack', JSON.stringify(state.layers.map(({id, primaryParam, secondaryParam, opacity, blend, enabled, seed}) => ({
             id,
-            a,
-            b,
+            primaryParam,
+            secondaryParam,
             opacity,
             blend,
             enabled,
@@ -1331,23 +1352,23 @@ function scheduleRender() {
 function fitCanvas() {
     if (!engine?.width)
         return;
-    const area = $('canvasArea'),
-        shell = $('artShell');
+    const area = getElement('canvasArea'),
+        shell = getElement('artShell');
     const rect = area.getBoundingClientRect();
     if (state.zoom === 'actual') {
-        $('canvasArea').style.overflow = 'auto';
-        $('canvasArea').style.justifyContent = 'flex-start';
-        $('canvasArea').style.alignItems = 'flex-start';
+        getElement('canvasArea').style.overflow = 'auto';
+        getElement('canvasArea').style.justifyContent = 'flex-start';
+        getElement('canvasArea').style.alignItems = 'flex-start';
         shell.style.flexShrink = '0';
         shell.style.maxWidth = 'none';
         shell.style.maxHeight = 'none';
         shell.style.width = engine.width + 'px';
         shell.style.height = engine.height + 'px';
-        $('zoomLabel').textContent = '100%';
+        getElement('zoomLabel').textContent = '100%';
     } else {
-        $('canvasArea').style.overflow = 'hidden';
-        $('canvasArea').style.justifyContent = 'center';
-        $('canvasArea').style.alignItems = 'center';
+        getElement('canvasArea').style.overflow = 'hidden';
+        getElement('canvasArea').style.justifyContent = 'center';
+        getElement('canvasArea').style.alignItems = 'center';
         shell.style.flexShrink = '1';
         shell.style.maxWidth = '100%';
         shell.style.maxHeight = '100%';
@@ -1355,10 +1376,10 @@ function fitCanvas() {
         const s = Math.max(.01, Math.min((rect.width - pad) / engine.width, (rect.height - (isCompact() ? 14 : 72)) / engine.height));
         shell.style.width = Math.max(50, engine.width * s) + 'px';
         shell.style.height = Math.max(50, engine.height * s) + 'px';
-        $('zoomLabel').textContent = 'FIT VIEW';
+        getElement('zoomLabel').textContent = 'FIT VIEW';
     }
-    $('fitBtn').classList.toggle('active', state.zoom === 'fit');
-    $('actualBtn').classList.toggle('active', state.zoom === 'actual');
+    getElement('fitBtn').classList.toggle('active', state.zoom === 'fit');
+    getElement('actualBtn').classList.toggle('active', state.zoom === 'actual');
     updateCanvasOverlay();
 }
 function drawImageLayer(ctx, layer, W, H) {
@@ -1381,7 +1402,7 @@ function drawImageLayer(ctx, layer, W, H) {
 function getStageMetrics() {
     if (!engine?.width || !engine?.height)
         return null;
-    const shell = $("artShell");
+    const shell = getElement("artShell");
     const rect = shell.getBoundingClientRect();
     if (!rect.width || !rect.height)
         return null;
@@ -1412,8 +1433,8 @@ function getLayerGeometry(layer, W, H) {
     };
 }
 function renderSnapGuides() {
-    const gx = $("guideX"),
-        gy = $("guideY");
+    const gx = getElement("guideX"),
+        gy = getElement("guideY");
     if (gx) {
         gx.hidden = snapGuides.x == null;
         if (snapGuides.x != null)
@@ -1431,8 +1452,8 @@ function clearSnapGuides() {
     renderSnapGuides();
 }
 function updateCanvasOverlay() {
-    const overlay = $("canvasOverlay"),
-        frame = $("layerFrame");
+    const overlay = getElement("canvasOverlay"),
+        frame = getElement("layerFrame");
     if (!overlay || !frame) {
         return;
     }
@@ -1441,7 +1462,7 @@ function updateCanvasOverlay() {
     if (!layer || !metrics) {
         frame.hidden = true;
         overlay.style.pointerEvents = 'auto';
-        $('artShell')?.classList.remove('is-layer-draggable', 'is-layer-dragging', 'is-rotating');
+        getElement('artShell')?.classList.remove('is-layer-draggable', 'is-layer-dragging', 'is-rotating');
         clearSnapGuides();
         return;
     }
@@ -1458,10 +1479,10 @@ function updateCanvasOverlay() {
     frame.style.width = (g.width / metrics.W * 100) + '%';
     frame.style.height = (g.height / metrics.H * 100) + '%';
     frame.style.transform = `translate(-50%,-50%) rotate(${layer.rotation || 0}deg)`;
-    $("layerFrameLabel").textContent = (layer.name || 'LAYER').toUpperCase().slice(0, 24);
-    $('artShell')?.classList.add('is-layer-draggable');
+    getElement("layerFrameLabel").textContent = (layer.name || 'LAYER').toUpperCase().slice(0, 24);
+    getElement('artShell')?.classList.add('is-layer-draggable');
     if (activeCanvasGesture?.layerKey !== layer.key) {
-        $('artShell')?.classList.remove('is-layer-dragging', 'is-rotating');
+        getElement('artShell')?.classList.remove('is-layer-dragging', 'is-rotating');
     }
     renderSnapGuides();
 }
@@ -1572,9 +1593,9 @@ function startCanvasGesture(layer, mode, ev) {
         centerPxX: cx,
         centerPxY: cy
     };
-    $('artShell').classList.add('is-layer-dragging');
-    $('artShell').classList.toggle('is-rotating', mode === 'rotate');
-    $('canvasOverlay').setPointerCapture?.(ev.pointerId);
+    getElement('artShell').classList.add('is-layer-dragging');
+    getElement('artShell').classList.toggle('is-rotating', mode === 'rotate');
+    getElement('canvasOverlay').setPointerCapture?.(ev.pointerId);
     clearSnapGuides();
 }
 function startPinchGesture(layer) {
@@ -1582,7 +1603,7 @@ function startPinchGesture(layer) {
     if (pts.length < 2)
         return;
     recordHistory();
-    const [a, b] = pts;
+    const [firstPointer, secondPointer] = pts;
     const metrics = getStageMetrics();
     if (!metrics)
         return;
@@ -1590,16 +1611,16 @@ function startPinchGesture(layer) {
         layerKey: layer.key,
         mode: 'pinch',
         pointerIds: [...activePointers.keys()].slice(0, 2),
-        startMidX: (a.x + b.x) / 2,
-        startMidY: (a.y + b.y) / 2,
-        startDistance: Math.hypot(b.x - a.x, b.y - a.y) || 1,
-        startAngle: Math.atan2(b.y - a.y, b.x - a.x),
+        startMidX: (firstPointer.x + secondPointer.x) / 2,
+        startMidY: (firstPointer.y + secondPointer.y) / 2,
+        startDistance: Math.hypot(secondPointer.x - firstPointer.x, secondPointer.y - firstPointer.y) || 1,
+        startAngle: Math.atan2(secondPointer.y - firstPointer.y, secondPointer.x - firstPointer.x),
         startScale: layer.scale,
         startRotation: layer.rotation || 0,
         startCx: layer.x,
         startCy: layer.y
     };
-    $('artShell').classList.add('is-layer-dragging', 'is-rotating');
+    getElement('artShell').classList.add('is-layer-dragging', 'is-rotating');
     clearSnapGuides();
 }
 function updateGestureUI() {
@@ -1643,11 +1664,11 @@ function handleCanvasPointerMove(ev) {
         clearSnapGuides();
     } else if (activeCanvasGesture.mode === 'pinch' && activeCanvasGesture.pointerIds?.includes(ev.pointerId) && activePointers.size >= 2) {
         const pointers = [...activePointers.values()].slice(0, 2);
-        const [a, b] = pointers;
-        const midX = (a.x + b.x) / 2,
-            midY = (a.y + b.y) / 2;
-        const dist = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-        const angle = Math.atan2(b.y - a.y, b.x - a.x);
+        const [firstPointer, secondPointer] = pointers;
+        const midX = (firstPointer.x + secondPointer.x) / 2,
+            midY = (firstPointer.y + secondPointer.y) / 2;
+        const dist = Math.hypot(secondPointer.x - firstPointer.x, secondPointer.y - firstPointer.y) || 1;
+        const angle = Math.atan2(secondPointer.y - firstPointer.y, secondPointer.x - firstPointer.x);
         layer.scale = Math.max(.05, Math.min(8, activeCanvasGesture.startScale * (dist / activeCanvasGesture.startDistance)));
         layer.rotation = activeCanvasGesture.startRotation + (angle - activeCanvasGesture.startAngle) * 180 / Math.PI;
         layer.x = activeCanvasGesture.startCx + (midX - activeCanvasGesture.startMidX) / (pt.W / 2) * 100;
@@ -1658,7 +1679,7 @@ function handleCanvasPointerMove(ev) {
 }
 function finishCanvasGesture() {
     activeCanvasGesture = null;
-    $('artShell').classList.remove('is-layer-dragging', 'is-rotating');
+    getElement('artShell').classList.remove('is-layer-dragging', 'is-rotating');
     clearSnapGuides();
     updateCanvasOverlay();
 }
@@ -1675,8 +1696,8 @@ function endCanvasGesture(ev) {
         finishCanvasGesture();
 }
 function initCanvasManipulation() {
-    const overlay = $("canvasOverlay"),
-        rotateHandle = $("rotateHandle"),
+    const overlay = getElement("canvasOverlay"),
+        rotateHandle = getElement("rotateHandle"),
         resizeHandles = [...document.querySelectorAll(".resize-handle")];
     if (!overlay)
         return;
@@ -1784,10 +1805,10 @@ function updateDocumentMeta() {
     if (!base)
         return;
     state.filename = base.name || 'CHAMELEON_COMPOSITE.PNG';
-    $('imageName').textContent = (state.filename || 'IMAGE').toUpperCase().slice(0, 30);
+    getElement('imageName').textContent = (state.filename || 'IMAGE').toUpperCase().slice(0, 30);
     const bw = base.img.naturalWidth || base.img.width,
         bh = base.img.naturalHeight || base.img.height;
-    $('resolution').textContent = `${bw} × ${bh} PX`;
+    getElement('resolution').textContent = `${bw} × ${bh} PX`;
 }
 function rebuildComposite(showToast) {
     if (!state.imageLayers.length)
@@ -1889,13 +1910,13 @@ async function appendImageLayers(files) {
     }
 }
 function downloadBlob(blob, name) {
-    const a = document.createElement('a');
+    const downloadLink = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    a.href = url;
-    a.download = name;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    downloadLink.href = url;
+    downloadLink.download = name;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
     setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 function getExportName(ext) {
@@ -1903,22 +1924,22 @@ function getExportName(ext) {
     return (clean || 'chameleon') + '_chameleon.' + ext;
 }
 function closeExportDialog() {
-    $('exportDialog').close();
+    getElement('exportDialog').close();
     if (exportBlobUrl) {
         URL.revokeObjectURL(exportBlobUrl);
         exportBlobUrl = null;
     }
     exportBlob = null;
-    $('exportPreview').removeAttribute('src');
+    getElement('exportPreview').removeAttribute('src');
 }
 function openExportDialog(blob, w, h) {
     exportBlob = blob;
     if (exportBlobUrl)
         URL.revokeObjectURL(exportBlobUrl);
     exportBlobUrl = URL.createObjectURL(blob);
-    $('exportPreview').src = exportBlobUrl;
-    $('exportDimensions').textContent = `PNG · ${w} × ${h} PX · ${(blob.size / 1024 / 1024).toFixed(1)} MB`;
-    $('exportDialog').showModal();
+    getElement('exportPreview').src = exportBlobUrl;
+    getElement('exportDimensions').textContent = `PNG · ${w} × ${h} PX · ${(blob.size / 1024 / 1024).toFixed(1)} MB`;
+    getElement('exportDialog').showModal();
 }
 async function shareResult() {
     if (!exportBlob)
@@ -1949,7 +1970,7 @@ async function exportPNG() {
     if (state.processing || !state.imageLayers.length)
         return;
     state.processing = true;
-    const btn = $('exportBtn');
+    const btn = getElement('exportBtn');
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.textContent = 'RENDERING...';
@@ -1962,7 +1983,7 @@ async function exportPNG() {
         const secondaryCanvas = state.imageLayers.length > 1 ? buildCompositeCanvas(document.createElement('canvas'), target, true) : null;
         engine.setSource(sourceCanvas, target, secondaryCanvas);
         engine.render(state.layers, false);
-        const blob = await new Promise((resolve, reject) => engine.canvas.toBlob(b => b ? resolve(b) : reject(new Error('이미지 생성에 실패했습니다.')), 'image/png'));
+        const blob = await new Promise((resolve, reject) => engine.canvas.toBlob(pngBlob => pngBlob ? resolve(pngBlob) : reject(new Error('이미지 생성에 실패했습니다.')), 'image/png'));
         if (isCompact() || onTouchDevice())
             openExportDialog(blob, engine.width, engine.height);
         else
@@ -1988,12 +2009,12 @@ async function exportPNG() {
 function savePreset() {
     const preset = {
         format: 'chameleon-preset',
-        version: 2,
+        version: 3,
         created: new Date().toISOString(),
-        layers: state.layers.map(({id, a, b, opacity, blend, enabled, seed}) => ({
+        layers: state.layers.map(({id, primaryParam, secondaryParam, opacity, blend, enabled, seed}) => ({
             id,
-            a,
-            b,
+            primaryParam,
+            secondaryParam,
             opacity,
             blend,
             enabled,
@@ -2014,16 +2035,7 @@ async function loadPreset(file) {
         if (!['chameleon-preset', 'effect-lab-preset'].includes(obj.format) || !Array.isArray(obj.layers) || obj.layers.length > 30)
             throw new Error('올바른 CHAMELEON 프리셋이 아닙니다.');
         recordHistory();
-        state.layers = obj.layers.filter(o => byId.has(o.id)).map(o => {
-            const l = newLayer(o.id);
-            l.a = Math.min(byId.get(o.id).a.max, Math.max(byId.get(o.id).a.min, Number(o.a) || 0));
-            l.b = Math.min(byId.get(o.id).b.max, Math.max(byId.get(o.id).b.min, Number(o.b) || 0));
-            l.opacity = Math.min(100, Math.max(0, Number(o.opacity) || 0));
-            l.blend = BLENDS.some(b => b[1] === o.blend) ? o.blend : 0;
-            l.enabled = Boolean(o.enabled);
-            l.seed = Number(o.seed) || l.seed;
-            return l;
-        });
+        state.layers = obj.layers.filter(storedLayer => effectsById.has(storedLayer.id)).map(hydrateEffectLayer);
         state.selection = state.layers.at(-1)?.key ?? null;
         state.selectedImageLayer = null;
         commitStack();
@@ -2033,50 +2045,50 @@ async function loadPreset(file) {
     }
 }
 function initEvents() {
-    $('undoBtn').onclick = undo;
-    $('redoBtn').onclick = redo;
+    getElement('undoBtn').onclick = undo;
+    getElement('redoBtn').onclick = redo;
     updateHistoryButtons();
     document.querySelectorAll('.mobile-tab').forEach(btn => btn.addEventListener('click', () => switchPanel(btn.dataset.panel)));
-    $('closeExport').onclick = closeExportDialog;
-    $('exportDialog').addEventListener('click', e => {
-        if (e.target === $('exportDialog'))
+    getElement('closeExport').onclick = closeExportDialog;
+    getElement('exportDialog').addEventListener('click', e => {
+        if (e.target === getElement('exportDialog'))
             closeExportDialog();
     });
-    $('exportDialog').addEventListener('cancel', e => {
+    getElement('exportDialog').addEventListener('cancel', e => {
         e.preventDefault();
         closeExportDialog();
     });
-    $('shareExport').onclick = shareResult;
-    $('downloadExport').onclick = () => {
+    getElement('shareExport').onclick = shareResult;
+    getElement('downloadExport').onclick = () => {
         if (exportBlob)
             downloadBlob(exportBlob, getExportName('png'));
     };
-    $('openExport').onclick = () => {
+    getElement('openExport').onclick = () => {
         if (exportBlobUrl)
             window.open(exportBlobUrl, '_blank', 'noopener,noreferrer');
     };
-    $('loadBtn').onclick = () => $('uploadInput').click();
-    $('layerUploadBtn').onclick = () => $('layerInput').click();
-    $('addImageLayerBtn').onclick = () => $('layerInput').click();
-    $('uploadInput').onchange = e => {
+    getElement('loadBtn').onclick = () => getElement('uploadInput').click();
+    getElement('layerUploadBtn').onclick = () => getElement('layerInput').click();
+    getElement('addImageLayerBtn').onclick = () => getElement('layerInput').click();
+    getElement('uploadInput').onchange = e => {
         replaceBaseImage(e.target.files[0]);
         e.target.value = '';
     };
-    $('layerInput').onchange = e => {
+    getElement('layerInput').onchange = e => {
         appendImageLayers(e.target.files);
         e.target.value = '';
     };
     initCanvasManipulation();
-    $('exportBtn').onclick = exportPNG;
-    $('fitBtn').onclick = () => {
+    getElement('exportBtn').onclick = exportPNG;
+    getElement('fitBtn').onclick = () => {
         state.zoom = 'fit';
         fitCanvas();
     };
-    $('actualBtn').onclick = () => {
+    getElement('actualBtn').onclick = () => {
         state.zoom = 'actual';
         fitCanvas();
     };
-    const compare = $('compareBtn');
+    const compare = getElement('compareBtn');
     const setCompare = active => {
         state.compare = active;
         compare.setAttribute('aria-pressed', String(active));
@@ -2124,9 +2136,9 @@ function initEvents() {
         const input = ['INPUT', 'TEXTAREA', 'SELECT'].includes(focused?.tagName);
         if (e.key === '/' && !input) {
             e.preventDefault();
-            $('search').focus();
+            getElement('search').focus();
         }
-        if (e.code === 'Space' && !input && !e.repeat && !$('helpDialog').open) {
+        if (e.code === 'Space' && !input && !e.repeat && !getElement('helpDialog').open) {
             e.preventDefault();
             state.compare = true;
             scheduleRender();
@@ -2145,11 +2157,11 @@ function initEvents() {
             scheduleRender();
         }
     });
-    $('search').addEventListener('input', e => {
+    getElement('search').addEventListener('input', e => {
         state.query = e.target.value.trim().toLowerCase();
         renderLibrary();
     });
-    $('clearBtn').onclick = () => {
+    getElement('clearBtn').onclick = () => {
         if (!state.layers.length)
             return;
         recordHistory();
@@ -2158,38 +2170,38 @@ function initEvents() {
         commitStack();
         notify('모든 효과를 지웠습니다.');
     };
-    $('addEffectBtn').onclick = () => {
+    getElement('addEffectBtn').onclick = () => {
         if (isCompact())
             switchPanel('filters');
-        $('search').focus();
+        getElement('search').focus();
     };
-    $('resetEffectBtn').onclick = () => {
-        const l = state.layers.find(x => x.key === state.selection);
-        if (!l)
+    getElement('resetEffectBtn').onclick = () => {
+        const effectLayer = state.layers.find(layer => layer.key === state.selection);
+        if (!effectLayer)
             return;
-        const fx = byId.get(l.id);
+        const effect = effectsById.get(effectLayer.id);
         recordHistory();
-        l.a = fx.a.def;
-        l.b = fx.b.def;
-        l.opacity = 100;
-        l.blend = 0;
+        effectLayer.primaryParam = effect.primaryParam.def;
+        effectLayer.secondaryParam = effect.secondaryParam.def;
+        effectLayer.opacity = 100;
+        effectLayer.blend = 0;
         commitStack();
         notify('파라미터가 초기화되었습니다.');
     };
-    $('savePresetBtn').onclick = savePreset;
-    $('loadPresetBtn').onclick = () => $('presetInput').click();
-    $('presetInput').onchange = e => {
+    getElement('savePresetBtn').onclick = savePreset;
+    getElement('loadPresetBtn').onclick = () => getElement('presetInput').click();
+    getElement('presetInput').onchange = e => {
         loadPreset(e.target.files[0]);
         e.target.value = '';
     };
-    $('helpBtn').onclick = () => $('helpDialog').showModal();
-    $('closeHelp').onclick = () => $('helpDialog').close();
-    $('dialogOk').onclick = () => $('helpDialog').close();
-    $('helpDialog').addEventListener('click', e => {
-        if (e.target === $('helpDialog'))
-            $('helpDialog').close();
+    getElement('helpBtn').onclick = () => getElement('helpDialog').showModal();
+    getElement('closeHelp').onclick = () => getElement('helpDialog').close();
+    getElement('dialogOk').onclick = () => getElement('helpDialog').close();
+    getElement('helpDialog').addEventListener('click', e => {
+        if (e.target === getElement('helpDialog'))
+            getElement('helpDialog').close();
     });
-    const zone = $('dropZone');
+    const zone = getElement('dropZone');
     let dragDepth = 0;
     zone.addEventListener('dragenter', e => {
         e.preventDefault();
@@ -2227,7 +2239,7 @@ function initEvents() {
     window.addEventListener('orientationchange', () => setTimeout(fitCanvas, 160));
     if (window.ResizeObserver) {
         const ro = new ResizeObserver(debounce(fitCanvas, 80));
-        ro.observe($('canvasArea'));
+        ro.observe(getElement('canvasArea'));
     }
     compactQuery.addEventListener?.('change', () => {
         fitCanvas();
@@ -2236,7 +2248,7 @@ function initEvents() {
 }
 async function initialize() {
     try {
-        engine = new EffectEngine($('glCanvas'));
+        engine = new EffectEngine(getElement('glCanvas'));
         try {
             const thumbCanvas = document.createElement('canvas');
             thumbEngine = new EffectEngine(thumbCanvas);
@@ -2252,11 +2264,7 @@ async function initialize() {
         try {
             const saved = JSON.parse(localStorage.getItem('chameleon_stack') || '[]');
             if (Array.isArray(saved))
-                state.layers = saved.filter(x => byId.has(x.id)).slice(0, 30).map(o => ({
-                    ...newLayer(o.id),
-                    ...o,
-                    key: nextKey++
-                }));
+                state.layers = saved.filter(storedLayer => effectsById.has(storedLayer.id)).slice(0, 30).map(hydrateEffectLayer);
         } catch (_) {}
         if (!state.layers.length) {
             state.layers = [newLayer(63), newLayer(66), newLayer(51)];
@@ -2289,9 +2297,9 @@ async function initialize() {
     } catch (err) {
         console.error(err);
         reportAnalyticsError('initialize_webgl', err);
-        $('engineText').textContent = 'ENGINE ERROR';
-        $('engineText').style.color = '#ff7777';
-        $('artShell').innerHTML = '<div style="padding:40px;max-width:450px;line-height:1.7;color:#ffb5b5">이미지 처리 엔진을 시작할 수 없습니다.<br/>' + escapeHtml(err.message) + '<br/>최신 Chrome, Edge, Safari에서 다시 열어주세요.</div>';
+        getElement('engineText').textContent = 'ENGINE ERROR';
+        getElement('engineText').style.color = '#ff7777';
+        getElement('artShell').innerHTML = '<div style="padding:40px;max-width:450px;line-height:1.7;color:#ffb5b5">이미지 처리 엔진을 시작할 수 없습니다.<br/>' + escapeHtml(err.message) + '<br/>최신 Chrome, Edge, Safari에서 다시 열어주세요.</div>';
         notify('WebGL 초기화 실패: ' + err.message);
     }
 }
